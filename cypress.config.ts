@@ -11,7 +11,8 @@ export default defineConfig({
     baseUrl: 'https://jsonplaceholder.typicode.com', // Example API for testing
     supportFile: 'cypress/support/e2e.ts',
     env: {
-      reqres_host: 'https://reqres.in'
+      reqres_host: 'https://reqres.in',
+      dotesthere_host: 'https://dotesthere.com'
     }
   },
 })

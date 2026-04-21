@@ -45,47 +45,92 @@ export function verifyResponseMatchExpected(actualResponse: any, expectedRespons
   }
 }
 
-function compareResponseHashes(actualHash: any, expectedHash: any): void {
-  if (typeof actualHash === 'object' && actualHash !== null || Array.isArray(actualHash)) {
-    try {
-      Object.keys(actualHash).forEach(key => {
-        try {
-          const value = actualHash[key];
-          if (typeof value === 'object' && value !== null && expectedHash[key] !== 'skip') {
-            compareResponseHashes(value, expectedHash[key]);
-          } else if (Array.isArray(value) && Array.isArray(expectedHash[key])) {
-            value.forEach((val, index) => {
-              compareResponseHashes(val, expectedHash[key][index]);
-            });
-          } else {
-            if (expectedHash.hasOwnProperty(key)) {
-              const message = `${key} is wrong! actual: ${value} expected: ${expectedHash[key]}`;
-              compareValues(value, expectedHash[key], message);
-            } else {
-              cy.log(`Warning: ${key} is not expected`);
-            }
-          }
-        } catch (e) {
-          if (e instanceof Error && e.message.includes('undefined')) {
-            throw new Error(`Haven't found ${key}=${actualHash[key]} in ${expectedHash}`);
-          } else {
-            throw e;
-          }
-        }
-      });
-    } catch (e) {
-      if (e instanceof Error && e.message.includes('undefined')) {
-        throw new Error(`Haven't found ${expectedHash} in actual`);
-      } else {
-        throw e;
-      }
-    }
-  } else {
-    const message = `actual: ${actualHash} expected: ${expectedHash}`;
+function compareResponseHashes(
+  actualHash: unknown,
+  expectedHash: unknown,
+  path: string = "root"
+): void {
+ 
+  // ✅ Skip handling
+  if (expectedHash === "skip") {
+    return;
+  }
+ 
+  // ✅ Primitive values
+  if (
+    typeof actualHash !== "object" ||
+    actualHash === null ||
+    typeof expectedHash !== "object" ||
+    expectedHash === null
+  ) {
+    const message = `${path} is wrong! actual: ${actualHash} expected: ${expectedHash}`;
     compareValues(actualHash, expectedHash, message);
+    return;
+  }
+ 
+  // ✅ Array handling
+  if (Array.isArray(actualHash) && Array.isArray(expectedHash)) {
+    expect(
+      Array.isArray(actualHash),
+      `TYPE MISMATCH at ${path}: actual is not an array`
+    ).to.be.true;
+ 
+    expect(
+      Array.isArray(expectedHash),
+      `TYPE MISMATCH at ${path}: expected is not an array`
+    ).to.be.true;
+ 
+    const actualArr = actualHash as unknown[];
+    const expectedArr = expectedHash as unknown[];
+ 
+    // expect(
+    //   actualArr.length,
+    //   `ARRAY LENGTH MISMATCH at ${path}`
+    // ).to.eql(expectedArr.length);
+ 
+    actualArr.forEach((item, index) => {
+      compareResponseHashes(
+        item,
+        expectedArr[index],
+        `${path}[${index}]`
+      );
+    });
+ 
+    return;
+  }
+ 
+  // ✅ Object handling
+  const actualObj = actualHash as Record<string, unknown>;
+  const expectedObj = expectedHash as Record<string, unknown>;
+ 
+  // 🔴 ASSERT missing keys
+  for (const key of Object.keys(expectedObj)) {
+    if (!(key in actualObj)) {
+      throw new Error(
+        `❌ MISSING KEY at ${path}.${key} | expected value: ${JSON.stringify(expectedObj[key])}`
+      );
+    }
+  }
+ 
+  // 🔴 ASSERT unexpected keys
+  for (const key of Object.keys(actualObj)) {
+    if (!(key in expectedObj)) {
+      throw new Error(
+        `❌ UNEXPECTED KEY at ${path}.${key} | actual value: ${JSON.stringify(actualObj[key])}`
+      );
+    }
+  }
+ 
+  // ✅ Deep compare
+  for (const key of Object.keys(expectedObj)) {
+    compareResponseHashes(
+      actualObj[key],
+      expectedObj[key],
+      `${path}.${key}`
+    );
   }
 }
-
+ 
 function compareValues(actual: any, expected: any, errorMessage: string): void {
   if (typeof expected === 'string') {
     if (expected.includes('match_regex')) {

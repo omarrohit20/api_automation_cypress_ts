@@ -2,71 +2,8 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { parse } from 'csv-parse/sync';
+//import { parse } from 'csv-parse/sync';
 
-export function writeFile(filePath: string, data: string, mode: string = 'w'): void {
-  const dir = path.dirname(filePath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  fs.writeFileSync(filePath, data, { encoding: 'utf8' });
-}
-
-export function writeFileBinary(filePath: string, data: Buffer): void {
-  writeFile(filePath, data.toString('binary'), 'wb');
-}
-
-export function createNewFile(filePath: string): void {
-  const dir = path.dirname(filePath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  fs.closeSync(fs.openSync(filePath, 'w'));
-}
-
-export function appendToFile(filePath: string, data: string): void {
-  fs.appendFileSync(filePath, data);
-}
-
-export function downloadFile(url: string, filePath?: string): string {
-  // Note: In Node.js/Cypress, downloading files requires additional libraries like axios
-  // For simplicity, this is a placeholder
-  filePath = filePath || path.join('downloads', path.basename(url));
-  console.log(`Downloading file from ${url} to ${filePath}`);
-  // Implement download logic if needed
-  return filePath;
-}
-
-export function createDir(dirPath: string): void {
-  if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true });
-  }
-}
-
-export function readCsvFile(filePath: string, skipNumberSign: boolean = true): any[] {
-  const content = fs.readFileSync(filePath, 'utf8');
-  const options: any = { columns: true, skip_empty_lines: true };
-  if (skipNumberSign) {
-    options.skip_lines_with_error = true; // Approximate
-  }
-  return parse(content, options);
-}
-
-export function readCsvFileToHash(filePath: string, skipNumberSign: boolean = true): any[] {
-  const records = readCsvFile(filePath, skipNumberSign);
-  return records.map(row => {
-    console.log(row);
-    return row;
-  });
-}
-
-export function readFile(filePath: string): string {
-  return fs.readFileSync(filePath, 'utf8');
-}
-
-export function readJsonFile(filePath: string): any {
-  return JSON.parse(readFile(filePath));
-}
 
 export function createTimestamp(): number {
   return Math.floor(Date.now() / 1000);

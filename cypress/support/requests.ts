@@ -1,16 +1,13 @@
 // requests.ts - Request helpers migrated from Ruby requests.rb
 
-import { readJsonFile } from './common';
-
 let headersJson = { 'content-type': 'json', accept: 'json' };
 let cookies: any = {};
 let token: string | undefined;
 let authTokenCookie: string | undefined;
 
 export function headersCookiesManager(): { headers: any, cookies: any } {
-  const headersCookies = readJsonFile('cypress/fixtures/headers-cookies.json');
-  let headersToSend = headersCookies.headers;
-  let cookiesToSend = headersCookies.cookies;
+  let headersToSend = {};
+  let cookiesToSend = {};
 
   if (token) {
     headersToSend = { ...headersToSend, token };

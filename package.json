@@ -13,7 +13,7 @@
   "type": "commonjs",
   "devDependencies": {
     "@types/cypress": "^0.1.6",
-    "cypress": "^15.13.1",
+    "cypress": "^15.14.0",
     "typescript": "^6.0.2"
   }
 }
