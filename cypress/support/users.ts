@@ -10,6 +10,10 @@ export class Users {
   public userPostResponse: any;
   public userGetResponse: any;
   public usersListResponse: any;
+  public dotesthereUsersListResponse: any;
+  public dotesthereUserResponse: any;
+  public dotesthereCreateUserResponse: any;
+  public dotesthereUpdateUserResponse: any;
 
   constructor() {
     this.initVariables();
@@ -70,6 +74,59 @@ export class Users {
 
     this.userGetResponse = convertToJson('{\n      "data": {\n        "id": "should_not_be_null",\n        "email": "janet.weaver@reqres.in",\n        "first_name": "Janet",\n        "last_name": "Weaver",\n        "avatar": "https://reqres.in/img/faces/2-image.jpg"\n      },\n      "support": {\n        "url": "https://reqres.in/#support-heading",\n        "text": "To keep ReqRes free, contributions towards server costs are appreciated!"\n      }\n    }');
 
-    this.usersListResponse = convertToJson('{\n      "page": 1,\n      "per_page": 10,\n      "total": "should_not_be_null",\n      "total_pages": "should_not_be_null",\n      "data": [\n        {\n          "id": "should_not_be_null",\n          "email": "match_regex",\n          "first_name": "only_chars",\n          "last_name": "only_chars",\n          "avatar": "should_not_be_null"\n        }\n      ]\n    }');
+    this.usersListResponse = convertToJson(`{
+      "page": 1,
+      "per_page": 10,
+      "total": "should_not_be_null",
+      "total_pages": "should_not_be_null",
+      "data": [
+        {
+          "id": "should_not_be_null",
+          "email": "/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/",
+          "first_name": "only_chars",
+          "last_name": "only_chars",
+          "avatar": "/^https?:\\/\\/.*\\.(jpg|png|jpeg|gif)$/"
+        }
+      ]
+    }`);
+
+    this.dotesthereUsersListResponse = {
+      page: 1,
+      per_page: 10,
+      total: 'should_not_be_null',
+      total_pages: 'should_not_be_null',
+      data: [
+        {
+          id: 'should_not_be_null',
+          email: '/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/',
+          first_name: 'only_chars',
+          last_name: 'only_chars',
+          avatar: '/^https?:\\/\\/.*\\.(jpg|png|jpeg|gif)$/'
+        }
+      ]
+    };
+
+    this.dotesthereUserResponse = {
+      data: {
+        id: 'should_not_be_null',
+        email: '/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/',
+        first_name: 'only_chars',
+        last_name: 'only_chars',
+        avatar: '/^https?:\\/\\/.*\\.(jpg|png|jpeg|gif)$/'
+      }
+    };
+
+    this.dotesthereCreateUserResponse = {
+      name: '',
+      job: '',
+      id: 'should_not_be_null',
+      createdAt: 'skip'
+    };
+
+    this.dotesthereUpdateUserResponse = {
+      name: '',
+      job: '',
+      updatedAt: 'skip'
+    };
   }
 }
