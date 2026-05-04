@@ -19,32 +19,8 @@ export class Users {
     this.initVariables();
   }
 
-  usersUrl(): string {
-    return Cypress.env('reqres_host') + '/api/users';
-  }
-
   dotesthereUsersUrl(): string {
     return Cypress.env('dotesthere_host') + '/api/users';
-  }
-
-  postUser(user: any): Cypress.Chainable<Cypress.Response<any>> {
-    return sendPostRequest(this.usersUrl(), user);
-  }
-
-  getUser(id: string): Cypress.Chainable<Cypress.Response<any>> {
-    return sendGetRequest(this.usersUrl() + `/${id}`);
-  }
-
-  putUser(id: string, user: any): Cypress.Chainable<Cypress.Response<any>> {
-    return sendPutRequest(this.usersUrl() + `/${id}`, user);
-  }
-
-  patchUser(id: string, user: any): Cypress.Chainable<Cypress.Response<any>> {
-    return sendPatchRequest(this.usersUrl() + `/${id}`, user);
-  }
-
-  deleteUser(id: string): Cypress.Chainable<Cypress.Response<any>> {
-    return sendDeleteRequest(this.usersUrl() + `/${id}`);
   }
 
   getUsersList(page: number = 1, limit: number = 10): Cypress.Chainable<Cypress.Response<any>> {
