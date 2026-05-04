@@ -47,6 +47,22 @@ export class Users {
     return sendGetRequest(`${this.dotesthereUsersUrl()}?page=${page}&limit=${limit}`);
   }
 
+  postUserDotesthere(user: any, failOnStatusCode: boolean = true): Cypress.Chainable<Cypress.Response<any>> {
+    return sendPostRequest(this.dotesthereUsersUrl(), user, undefined, failOnStatusCode);
+  }
+
+  getUserDotesthere(id: string, failOnStatusCode: boolean = true): Cypress.Chainable<Cypress.Response<any>> {
+    return sendGetRequest(`${this.dotesthereUsersUrl()}/${id}`, undefined, failOnStatusCode);
+  }
+
+  putUserDotesthere(id: string, user: any, failOnStatusCode: boolean = true): Cypress.Chainable<Cypress.Response<any>> {
+    return sendPutRequest(`${this.dotesthereUsersUrl()}/${id}`, user, failOnStatusCode);
+  }
+
+  deleteUserDotesthere(id: string, failOnStatusCode: boolean = true): Cypress.Chainable<Cypress.Response<any>> {
+    return sendDeleteRequest(`${this.dotesthereUsersUrl()}/${id}`, failOnStatusCode);
+  }
+
   private initVariables(): void {
     this.userPostPayloadRequest = convertToJson('{\n      "name": "",\n      "job": ""\n    }');
 

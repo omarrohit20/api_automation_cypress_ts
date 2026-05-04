@@ -19,7 +19,7 @@ export function headersCookiesManager(): { headers: any, cookies: any } {
   return { headers: headersToSend, cookies: cookiesToSend };
 }
 
-export function sendRequest(method: string, url: string, params: any = {}, customCookies?: any, customHeaders?: any): Cypress.Chainable<Cypress.Response<any>> {
+export function sendRequest(method: string, url: string, params: any = {}, customCookies?: any, customHeaders?: any, failOnStatusCode: boolean = true): Cypress.Chainable<Cypress.Response<any>> {
   const { headers: headersToSend, cookies: cookiesToSend } = headersCookiesManager();
   const finalHeaders = customHeaders || headersToSend;
   const finalCookies = customCookies || cookiesToSend;
@@ -28,6 +28,7 @@ export function sendRequest(method: string, url: string, params: any = {}, custo
     method: method as Cypress.HttpMethod,
     url,
     headers: finalHeaders,
+    failOnStatusCode: failOnStatusCode,
     ...params
   };
 
@@ -50,40 +51,40 @@ export function sendRequest(method: string, url: string, params: any = {}, custo
   });
 }
 
-export function sendGetRequest(apiUrl: string, headers?: any): Cypress.Chainable<Cypress.Response<any>> {
-  return sendRequest('GET', apiUrl, {}, undefined, headers);
+export function sendGetRequest(apiUrl: string, headers?: any, failOnStatusCode: boolean = true): Cypress.Chainable<Cypress.Response<any>> {
+  return sendRequest('GET', apiUrl, { failOnStatusCode }, undefined, headers, failOnStatusCode);
 }
 
-export function sendPostRequest(apiUrl: string, json?: any, headers?: any): Cypress.Chainable<Cypress.Response<any>> {
+export function sendPostRequest(apiUrl: string, json?: any, headers?: any, failOnStatusCode: boolean = true): Cypress.Chainable<Cypress.Response<any>> {
   let payload = json;
   if (json && typeof json === 'object') {
     payload = JSON.stringify(json);
   }
-  return sendRequest('POST', apiUrl, { body: payload }, undefined, headers);
+  return sendRequest('POST', apiUrl, { body: payload, failOnStatusCode }, undefined, headers, failOnStatusCode);
 }
 
-export function sendDeleteRequest(apiUrl: string): Cypress.Chainable<Cypress.Response<any>> {
-  return sendRequest('DELETE', apiUrl);
+export function sendDeleteRequest(apiUrl: string, failOnStatusCode: boolean = true): Cypress.Chainable<Cypress.Response<any>> {
+  return sendRequest('DELETE', apiUrl, { failOnStatusCode }, undefined, undefined, failOnStatusCode);
 }
 
-export function sendArchiveRequest(apiUrl: string, json: any): Cypress.Chainable<Cypress.Response<any>> {
-  return sendPatchRequest(apiUrl, json, { 'PATCH': 'ARCHIVED' });
+export function sendArchiveRequest(apiUrl: string, json: any, failOnStatusCode: boolean = true): Cypress.Chainable<Cypress.Response<any>> {
+  return sendPatchRequest(apiUrl, json, { 'PATCH': 'ARCHIVED' }, failOnStatusCode);
 }
 
-export function sendPatchRequest(apiUrl: string, json: any, patchHeader: any = {}): Cypress.Chainable<Cypress.Response<any>> {
+export function sendPatchRequest(apiUrl: string, json: any, patchHeader: any = {}, failOnStatusCode: boolean = true): Cypress.Chainable<Cypress.Response<any>> {
   let payload = json;
   if (json && typeof json === 'object') {
     payload = JSON.stringify(json);
   }
-  return sendRequest('PATCH', apiUrl, { body: payload }, undefined, patchHeader);
+  return sendRequest('PATCH', apiUrl, { body: payload, failOnStatusCode }, undefined, patchHeader, failOnStatusCode);
 }
 
-export function sendPutRequest(apiUrl: string, json: any): Cypress.Chainable<Cypress.Response<any>> {
+export function sendPutRequest(apiUrl: string, json: any, failOnStatusCode: boolean = true): Cypress.Chainable<Cypress.Response<any>> {
   let payload = json;
   if (json && typeof json === 'object') {
     payload = JSON.stringify(json);
   }
-  return sendRequest('PUT', apiUrl, { body: payload });
+  return sendRequest('PUT', apiUrl, { body: payload, failOnStatusCode }, undefined, undefined, failOnStatusCode);
 }
 
 export function getFile(apiUrl: string): Cypress.Chainable<Cypress.Response<any>> {
