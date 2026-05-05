@@ -1,4 +1,6 @@
 // assertions.ts - Utility functions for API response assertions in Cypress
+import cypress from 'cypress';
+import { trackApiCall, lastApiCall } from '../support/apiTracker'
 
 export function verifyResponse(response: Cypress.Response<any>, expectedResponse: any, expectedResponseCode: number): void {
   verifyResponseCode(response, expectedResponseCode);
@@ -27,19 +29,47 @@ export function verifyResponseMessageIncludes(response: any, message: string): v
   expect(response).to.include(messageJson);
 }
 
-export function verifyResponseTemplate(response: Cypress.Response<any>, expectedResponse: any, expectedResponseCode: number): void {
-  verifyResponseCode(response, expectedResponseCode);
-  verifyResponseMatchExpected(response.body, expectedResponse);
+export function verifyResponseTemplate(
+  response: Cypress.Response<any>,
+  expectedResponse: any,
+  expectedResponseCode: number
+): void {
+  try {
+    verifyResponseCode(response, expectedResponseCode);
+    verifyResponseMatchExpected(response.body, expectedResponse);
+  } catch (error) {
+    cy.log('❌ API ASSERTION FAILED');
+    cy.log(`METHOD: ${lastApiCall?.method ?? 'unknown'}`);
+    cy.log(`URL: ${lastApiCall?.url ?? 'unknown'}`);
+    cy.log('RESPONSE BODY:');
+    try {
+      cy.log(JSON.stringify(response?.body ?? lastApiCall?.response?.body, null, 2));
+    } catch (e) {
+      cy.log('Unable to serialize response body');
+    }
+    console.error('❌ FULL ERROR:', error);
+    throw error; // ✅ MUST rethrow
+  }
 }
 
 export function verifyResponseMatchExpected(actualResponse: any, expectedResponse: any): void {
   if (Array.isArray(actualResponse) && Array.isArray(expectedResponse)) {
-    actualResponse.forEach((actual, index) => {
-      compareResponseHashes(actual, expectedResponse[index]);
-    });
-    expectedResponse.forEach((expected, index) => {
-      compareResponseHashes(actualResponse[index], expected);
-    });
+    // When expected is a template array with 1 item, validate that structure 
+    // against ALL actual items (template-based matching)
+    if (expectedResponse.length === 1) {
+      const template = expectedResponse[0];
+      actualResponse.forEach((actual, index) => {
+        compareResponseHashes(actual, template, `${index}`);
+      });
+    } else {
+      // When expected has multiple items, do exact array comparison
+      actualResponse.forEach((actual, index) => {
+        compareResponseHashes(actual, expectedResponse[index]);
+      });
+      expectedResponse.forEach((expected, index) => {
+        compareResponseHashes(actualResponse[index], expected);
+      });
+    }
   } else {
     compareResponseHashes(actualResponse, expectedResponse);
   }
@@ -50,7 +80,6 @@ function compareResponseHashes(
   expectedHash: unknown,
   path: string = "root"
 ): void {
- 
   // ✅ Skip handling
   if (expectedHash === "skip") {
     return;
@@ -83,18 +112,22 @@ function compareResponseHashes(
     const actualArr = actualHash as unknown[];
     const expectedArr = expectedHash as unknown[];
  
-    // expect(
-    //   actualArr.length,
-    //   `ARRAY LENGTH MISMATCH at ${path}`
-    // ).to.eql(expectedArr.length);
- 
-    actualArr.forEach((item, index) => {
-      compareResponseHashes(
-        item,
-        expectedArr[index],
-        `${path}[${index}]`
-      );
-    });
+    // Template mode: when expected has 1 item, use it as a template for all actual items
+    if (expectedArr.length === 1) {
+      const template = expectedArr[0];
+      actualArr.forEach((item, index) => {
+        compareResponseHashes(item, template, `${path}[${index}]`);
+      });
+    } else {
+      // Exact mode: compare arrays item by item
+      actualArr.forEach((item, index) => {
+        compareResponseHashes(
+          item,
+          expectedArr[index],
+          `${path}[${index}]`
+        );
+      });
+    }
  
     return;
   }
@@ -106,6 +139,9 @@ function compareResponseHashes(
   // 🔴 ASSERT missing keys
   for (const key of Object.keys(expectedObj)) {
     if (!(key in actualObj)) {
+      cy.log('❌ MISSING KEY FOUND');
+      cy.log(`Path: ${path}.${key}`);
+      cy.log(`Expected: ${JSON.stringify(expectedObj[key])}`);
       throw new Error(
         `❌ MISSING KEY at ${path}.${key} | expected value: ${JSON.stringify(expectedObj[key])}`
       );
@@ -115,6 +151,9 @@ function compareResponseHashes(
   // 🔴 ASSERT unexpected keys
   for (const key of Object.keys(actualObj)) {
     if (!(key in expectedObj)) {
+      cy.log('❌ UNEXPECTED KEY FOUND');
+      cy.log(`Path: ${path}.${key}`);
+      cy.log(`Actual: ${JSON.stringify(actualObj[key])}`);
       throw new Error(
         `❌ UNEXPECTED KEY at ${path}.${key} | actual value: ${JSON.stringify(actualObj[key])}`
       );
@@ -150,6 +189,11 @@ function compareValues(actual: any, expected: any, errorMessage: string): void {
     } else {
       expect(actual).to.eql(expected);
     }
+  } else if (expected === undefined) {
+    console.error('❌ COMPAREVALUES - EXPECTED IS UNDEFINED');
+    console.error('Actual:', actual);
+    console.error('Expected:', expected);
+    throw new Error(`Value mismatch at ${errorMessage}: actual=${JSON.stringify(actual)}, expected=${expected}`);
   } else {
     expect(actual).to.eql(expected);
   }

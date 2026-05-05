@@ -5,7 +5,8 @@ import { defineConfig } from 'cypress'
 export default defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
-      // implement node event listeners here
+      require("cypress-grep/src/plugin")(config);
+      return config;
     },
     specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
     baseUrl: 'https://jsonplaceholder.typicode.com', // Example API for testing

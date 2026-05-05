@@ -1,16 +1,18 @@
 import { Users } from '../../support/users';
 import { verifyResponseCode, verifyResponseIsSuccessfulCreateEntity, verifyResponseTemplate } from '../../support/assertions';
 
-describe('Users Dotesthere', () => {
+describe('Users Dotesthere', { tags: ['@api', '@smoke'] }, () => {
   let users: Users;
 
   before(() => {
     users = new Users();
   });
 
-  context('Dotesthere Users API', () => {
+  context('Dotesthere Users API', { tags: ['@wip'] }, () => {
     it('Get users list with pagination', () => {
+      cy.log('Expected Response:', JSON.stringify(users.dotesthereUsersListResponse));
       users.getUsersList(1, 10).then((response) => {
+        cy.log('Get Users List Response:', JSON.stringify(response.body));
         verifyResponseTemplate(response, users.dotesthereUsersListResponse, 200);
       });
     });

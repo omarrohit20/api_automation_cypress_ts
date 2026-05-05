@@ -1,4 +1,5 @@
 // requests.ts - Request helpers migrated from Ruby requests.rb
+import { trackApiCall, lastApiCall } from '../support/apiTracker';
 
 let headersJson = { 'content-type': 'json', accept: 'json' };
 let cookies: any = {};
@@ -38,6 +39,7 @@ export function sendRequest(method: string, url: string, params: any = {}, custo
   }
 
   return cy.request(requestOptions).then((response) => {
+    trackApiCall(method, url, response);
     // Refresh authToken
     if (response.status === 200 && response.headers['set-cookie'] && response.headers['set-cookie'].includes('authToken')) {
       const cookieHeader = response.headers['set-cookie'];

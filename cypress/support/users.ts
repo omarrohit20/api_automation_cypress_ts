@@ -58,10 +58,10 @@ export class Users {
       "data": [
         {
           "id": "should_not_be_null",
-          "email": "/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/",
+          "email": "match_regex:/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/",
           "first_name": "only_chars",
           "last_name": "only_chars",
-          "avatar": "/^https?:\\/\\/.*\\.(jpg|png|jpeg|gif)$/"
+          "avatar": "match_regex:/^https?:\\/\\/.*\\.(jpg|png|jpeg|gif)$/"
         }
       ]
     }`);
@@ -74,10 +74,10 @@ export class Users {
       data: [
         {
           id: 'should_not_be_null',
-          email: '/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/',
+          email: 'match_regex:/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/',
           first_name: 'only_chars',
           last_name: 'only_chars',
-          avatar: '/^https?:\\/\\/.*\\.(jpg|png|jpeg|gif)$/'
+          avatar: 'match_regex:/^https?:\\/\\/.*\\.(jpg|png|jpeg|gif)$/'
         }
       ]
     };
@@ -85,10 +85,10 @@ export class Users {
     this.dotesthereUserResponse = {
       data: {
         id: 'should_not_be_null',
-        email: '/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/',
+        email: 'match_regex:/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/',
         first_name: 'only_chars',
         last_name: 'only_chars',
-        avatar: '/^https?:\\/\\/.*\\.(jpg|png|jpeg|gif)$/'
+        avatar: 'match_regex:/^https?:\\/\\/.*\\.(jpg|png|jpeg|gif)$/'
       }
     };
 
